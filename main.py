@@ -12,7 +12,7 @@ width = 295
 
 def crop_and_rotates_image(image, image_mono, file_name):
      (alt, lar) = image_mono.shape[:2]
-     ret, imgT = cv2.threshold(image_mono, 200, 255, cv2.THRESH_BINARY)
+     _ , imgT = cv2.threshold(image_mono, 200, 255, cv2.THRESH_BINARY)
 
      p1=0
      xi=lar
@@ -104,9 +104,13 @@ def validate_plates(path):
 
           template = dict_template_images[plate_code]
 
-          difference = cv2.absdiff(template, cropped_image)
-          subtract = cv2.subtract(template, cropped_image)
-          ret, difference = cv2.threshold(difference, 127, 255, cv2.THRESH_BINARY)
+          try:
+               difference = cv2.absdiff(template, cropped_image)
+               subtract = cv2.subtract(template, cropped_image)
+               ret, difference = cv2.threshold(difference, 127, 255, cv2.THRESH_BINARY)
+          except:
+               print("Placa => Recusada - As placas tem tamanhos diferentes")
+               continue
 
           b, g, r = cv2.split(difference)
 
@@ -119,7 +123,7 @@ def validate_plates(path):
                print("Placa => Aceita")
 
           elif cv2.countNonZero(b) >= 5000 or cv2.countNonZero(g) >= 5000 or cv2.countNonZero(r) >= 5000:
-               print("Placa => recusada")
+               print("Placa => Recusada - As imagens são diferentes")
 
 
 if __name__ == '__main__':
@@ -128,4 +132,4 @@ if __name__ == '__main__':
      validate_plates('FotosPlacas')
 
      # placas_sem_erros
-     #valite_plates('placas_sem_erros')
+     validate_plates('FotosPlacasComErro')
